@@ -1,2 +1,2 @@
-go build -o build/chain33.exe github.com/33cn/chain33/cmd/chain33
-go build -o build/chain33-cli.exe github.com/33cn/chain33/cmd/cli
+go build -o oceanchain.exe
+go build -o oceanchain-cli.exe github.com/rzrose3769/oceanchain/plugin/cli

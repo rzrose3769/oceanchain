@@ -11,6 +11,11 @@ datadir*
 .vscode
 *.pprof
 *.test
+oceanchain
+parawallet
+paradatadir
+logs
+nohup.out
 cmd/chain33/chain33
 cmd/tools/tools
 build/cert.pem

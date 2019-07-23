@@ -16,6 +16,7 @@ DAPP="${3}"
 
 TESTCASEFILE="testcase.sh"
 FORKTESTFILE="fork-test.sh"
+DOCKER_COMPOSE_SH="docker-compose.sh"
 
 function down_dapp() {
     app=$1
@@ -32,12 +33,15 @@ function down_dapp() {
 }
 
 function run_dapp() {
-    app=$1
-    test=$2
+    local app=$1
+    local test=$2
 
     echo "============ run dapp=$app start ================="
     rm -rf "${app}"-ci && mkdir -p "${app}"-ci && cp ./"${app}"/* ./"${app}"-ci && echo $?
     cp -n ./* ./"${app}"-ci/ && echo $?
+    if [ "$app" == "paracross" ]; then
+        cp -r dapptest/ "${app}"-ci/ && echo $?
+    fi
     cd "${app}"-ci/ && pwd
 
     if [ "$test" == "$FORKTESTFILE" ]; then
@@ -46,7 +50,7 @@ function run_dapp() {
             exit 1
         fi
     elif [ "$test" == "$TESTCASEFILE" ]; then
-        if ! ./docker-compose.sh "${PROJ}" "${app}"; then
+        if ! ./${DOCKER_COMPOSE_SH} "${PROJ}" "${app}"; then
             exit 1
         fi
     fi
@@ -77,7 +81,7 @@ function main() {
     if [ "${OP}" == "run" ]; then
         if [ "${DAPP}" == "all" ] || [ "${DAPP}" == "ALL" ]; then
             echo "============ run main start ================="
-            if ! ./docker-compose.sh "$PROJ"; then
+            if ! ./${DOCKER_COMPOSE_SH} "$PROJ"; then
                 exit 1
             fi
             ./docker-compose-down.sh "$PROJ"
@@ -91,7 +95,7 @@ function main() {
         elif [ -n "${DAPP}" ]; then
             run_single_app "${DAPP}" "$TESTCASEFILE"
         else
-            ./docker-compose.sh "${PROJ}"
+            ./${DOCKER_COMPOSE_SH} "${PROJ}"
         fi
     elif [ "${OP}" == "down" ]; then
         if [ "${DAPP}" == "all" ] || [ "${DAPP}" == "ALL" ]; then
@@ -125,6 +129,8 @@ function main() {
         else
             ./system-fork-test.sh "${PROJ}"
         fi
+    elif [ "${OP}" == "modify" ]; then
+        sed -i $sedfix '/^useGithub=.*/a version=1' chain33.toml
     fi
 
 }
